@@ -4,6 +4,8 @@
     <title>숫자야구</title>
   </head>
   <body>
+    <!-- input에 button이 달린 것은 web표준에 따라서 form으로 감싸주는것이 좋음 -->
+    <!-- event는 form에 단다 -->
     <form id="form">
       <input type="text" id="input" />
       <button>확인</button>
@@ -26,6 +28,37 @@
         numbers.splice(index, 1);
       }
       console.log(answer);
+
+      const tries = [];
+      function checkInput(input) {
+        //검사하는 코드
+        if (input.length !== 4) {
+          //길이는 4개인가
+          return alert('4자리 숫자를 입력해주세요'); //if문 return의 alert은 undefined이고 false임
+        }
+        if (new Set(input).size !== 4) {
+          //중복된 숫자가 있는가
+          return alert('중복되지 않게 입력해주세요');
+        }
+        if (tries.includes(input)) {
+          //이미 시도한 값인가
+          return alert('이미 시도한 값입니다');
+        }
+        return true;
+      }
+
+      $form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const value = $input.value;
+        $input.value = '';
+        const valid = checkInput(value);
+        if (valid) {
+          //입력값 문제 없음
+          tries.push(value);
+        } else {
+          //입력값 문제 있음
+        }
+      });
     </script>
   </body>
 </html>

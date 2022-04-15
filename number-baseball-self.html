@@ -1,0 +1,121 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>숫자야구</title>
+  </head>
+  <body>
+    <!-- input에 button이 달린 것은 web표준에 따라서 form으로 감싸주는것이 좋음 -->
+    <!-- event는 form에 단다 -->
+    <form id="form">
+      <input type="text" id="input" />
+      <button>확인</button>
+    </form>
+    <div id="logs"></div>
+    <script>
+      const $input = document.querySelector('#input');
+      const $form = document.querySelector('#form');
+      const $logs = document.querySelector('#logs');
+
+      //create 1-9 number
+      const numbers = []; //[1,2,3,4,5,6,7,8,9]
+      for (let n = 0; n < 9; n++) {
+        numbers.push(n + 1);
+      }
+
+      //create answer
+      const answer = [];
+      for (let n = 0; n < 4; n++) {
+        const index = Math.floor(Math.random() * numbers.length);
+        answer.push(numbers[index]);
+        numbers.splice(index, 1);
+      }
+      console.log(answer);
+
+      //tries input array
+      const tries = [];
+      //inspection function
+      function checkInput(input) {
+        //are there four numbers?
+        if (input.length !== 4) {
+          return alert('4자리 숫자를 입력해주세요');
+        }
+        //are there overlaping numbers?
+        if (new Set(input).size !== 4) {
+          return alert('중복이 되지 않게 입력해주세요');
+        }
+        //is it already written numbers?
+        if (tries.includes(input)) {
+          return alert('이미 시도한 값입니다');
+        }
+        return true;
+      }
+      //defeated function
+      function defeated() {
+        const message = document.createTextNode(
+          `패배! 정답은 ${answer.join('')} 입니다`
+        );
+        $logs.append(message);
+      }
+
+      //let out outside of event because it is reset
+      let out = 0;
+      $form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const value = $input.value;
+        $input.value = '';
+        const valid = checkInput(value);
+
+        //input numbers have probelm
+        //all falses from func checkInput go into here
+        if (!valid) {
+          return;
+        }
+        //input numbers don't have probelm
+        if (valid) {
+          if (answer.join('') === value) {
+            $logs.textContent = '홈런!';
+            return;
+          }
+          if (tries.length >= 9) {
+            defeated();
+            return;
+          }
+          //count strikes and balls
+          let strike = 0;
+          let ball = 0;
+
+          for (let i = 0; i < answer.length; i++) {
+            const index = value.indexOf(answer[i]);
+            if (index > -1) {
+              //there are overlaping numbers
+              if (index === i) {
+                //same number spot
+                strike += 1;
+              } else {
+                //only number same
+                ball += 1;
+              }
+            }
+          }
+          //none numbers match? out
+          if (strike === 0 && ball === 0) {
+            out += 1;
+            $logs.append(`${value}: ${out} 아웃`, document.createElement('br'));
+            //3 out
+            if (out === 3) {
+              defeated();
+              return;
+            }
+          } else {
+            $logs.append(
+              `${value}: ${strike} 스트라이크 ${ball} 볼`,
+              document.createElement('br')
+            );
+          }
+
+          tries.push(value);
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,131 @@
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>가위바위보</title>
+		<style>
+			#computer {
+				width: 142px;
+				height: 173px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div id="computer"></div>
+		<div>
+			<button id="scissors" class="btn">가위</button>
+			<button id="rock" class="btn">바위</button>
+			<button id="paper" class="btn">보</button>
+		</div>
+		<div id="score">0</div>
+
+		<script>
+			const $computer = document.querySelector('#computer');
+			const $score = document.querySelector('#score');
+			const $rock = document.querySelector('#rock');
+			const $scissors = document.querySelector('#scissors');
+			const $paper = document.querySelector('#paper');
+			const IMG_URL = './rsp.png';
+			//background, bacgroundSize 는 한 세트
+			$computer.style.background = `url(${IMG_URL}) -378px 0`;
+			$computer.style.backgroundSize = 'auto 173px';
+			const rspX = {
+				scissors: '-524px',
+				rock: '-712px',
+				paper: '-378px',
+			};
+
+			// function changeRSP(Y) {
+			// 	//객체에서 []를 써야 변수의 값을 넣을 수 있다
+			// 	$computer.style.background = `url(${IMG_URL}) ${rspX[Y]} 0`;
+			// 	$computer.style.backgroundSize = 'auto 173px';
+			// }
+			let computerChoice = 'scissors';
+			const changeComputerHand = () => {
+				if (computerChoice === 'scissors') {
+					//가위면
+					computerChoice = 'rock';
+					//changeRSP('rock');
+				} else if (computerChoice === 'rock') {
+					// 바위면
+					computerChoice = 'paper';
+					//changeRSP('paper');
+				} else if (computerChoice === 'paper') {
+					computerChoice = 'scissors';
+					//changeRSP('scissors');
+				}
+				//rspX.computerChoice 하면 안됨!!! 객체에서 변수의 값자리는 반드시 [] 써야함
+				//rspX[computerChoice] 는 rspX.["computerChoice"]와 같음
+				// .(점) 뒤에 오는 것은 문자열이기 때문
+				$computer.style.background = `url(${IMG_URL}) ${rspX[computerChoice]} 0`;
+				$computer.style.backgroundSize = 'auto 173px';
+			};
+			//setInterval 은 반환값이 있음. 그것은 타이머에 대한 아이디(숫자)
+			let intervalID = setInterval(changeComputerHand, 50);
+			//clickButton 5번 빠르게 연속 호출 > 인터벌 1번, 2번, 3번, 4번, 5번. 5번만 intervalID에 저장됨 (변수가 1개 이므로)
+			//그 다음에 clickButton 다시 누르면 5번만 취소됨.
+			// const clickButton = () => {
+			// 	clearInterval(intervalID);
+			// 	//점수 계산 및 화면 표시
+			// 	setTimeout(() => {
+			// 		clearInterval(intervalID); //비동기 js 의 주의점! 위의 clearInterval은 버튼을 클릭할 때, 아래의 clearInterval은 setTimeout 1초 후에 실행될 때
+			// 		intervalID = setInterval(changeComputerHand, 50);
+			// 	}, 1000);
+			// };
+
+			//경우의 수가 9가지 나오기 때문에 발상의 전환(숫자로 변경)을 통해 코드를 줄일 수 있음. 더 깔끔한 코드 생성!
+			const scroeTable = {
+				rock: 0,
+				scissors: 1,
+				paper: -1,
+			};
+			//[flag variable(플래그 변수)]을 활용한 비동기 제거...제로초 추천 방법!
+			let clickable = true;
+			let score = 0;
+			const clickButton = () => {
+				if (clickable) {
+					clearInterval(intervalID);
+					clickable = false;
+					//점수 계산 및 화면 표시
+					const myChoice =
+						event.target.textContent === '바위'
+							? 'rock'
+							: event.target.textContent === '가위'
+							? 'scissors'
+							: 'paper';
+					const myScore = scroeTable[myChoice];
+					const computerScore = scroeTable[computerChoice];
+					const diff = myScore - computerScore;
+					//조건문 꿀팁
+					// diff ==='고양이' || diff === '강아지' || diff === '거북이' || diff === '토끼'
+					//위 코드를 ['고양이', '강아지', '거북이','토끼'].includes(diff) 로 변경하면
+					//return 값이 boolean임
+					let message;
+					if ([2, -1].includes(diff)) {
+						score += 1;
+						message = '승리';
+					} else if ([-2, 1].includes(diff)) {
+						score -= 1;
+						message = '패배';
+					} else {
+						message = '무승부';
+					}
+					$score.textContent = `${message} 총 ${score} 점`;
+					setTimeout(() => {
+						clickable = true;
+						intervalID = setInterval(changeComputerHand, 50);
+					}, 1000);
+				}
+			};
+			$rock.addEventListener('click', clickButton);
+			$paper.addEventListener('click', clickButton);
+			$scissors.addEventListener('click', clickButton);
+			// const fun = () => () => {}일 때
+			// fun(1) === fun(1)는  false 값이 나옴. 함수도 객체이기 때문에...(아마 메모리 할당 주소가 달라서(파이썬처럼?))
+			//같게 하려면 변수 참조를 써야함(메모리 개념 같음)
+			//const funct = fun(1)
+			//funct === funct는 true
+			//removeEventListner('click', 함수) 실행하려면 (메모리값이)같은 함수를 사용해야 함
+		</script>
+	</body>
+</html>
